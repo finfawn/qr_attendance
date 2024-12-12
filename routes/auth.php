@@ -13,6 +13,29 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
     ->name('logout');
+        // Routes for email verification
+        Route::middleware('auth')->group(function () {
+            Route::get('verify-email', [EmailVerificationPromptController::class, '__invoke'])
+                ->name('verification.notice');
+            
+            Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
+                ->middleware('throttle:6,1')
+                ->name('verification.send');
+            
+                Route::get('verify-email/{id}/{hash}', [VerifyEmailController::class, '__invoke'])
+                ->middleware(['signed'])
+                ->name('verification.verify');
+            
+            // Your existing routes...
+            Route::middleware('auth')->group(function () {
+                Route::get('verify-email', [EmailVerificationPromptController::class, '__invoke'])
+                    ->name('verification.notice');
+                
+                Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
+                    ->middleware('throttle:6,1')
+                    ->name('verification.send');
+            });
+        });
 
 Route::middleware('guest')->group(function () {
     Route::get('register', [RegisteredUserController::class, 'create'])

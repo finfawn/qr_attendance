@@ -1,19 +1,23 @@
 <x-app-layout>
-    <x-slot name="header">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                {{ __('Manage Attendance') }} - {{ $event->title }}
-            </h2>
-            <a href="{{ route('events.show', $event) }}" 
-               class="text-gray-600 hover:text-gray-900 dark:hover:text-gray-400 inline-flex items-center"
-               title="Back to Event">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z" />
-                </svg>
-            </a>
+    <div class="dashboard-header">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center">
+                <h2 class="font-bold text-2xl text-white leading-tight flex items-center">
+                    <svg class="w-8 h-8 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    {{ __('Manage Attendance') }}
+                </h2>
+                <a href="{{ route('events.show', $event) }}" 
+                   class="create-event-btn px-6 py-3 text-white rounded-lg transition-all duration-300 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z" />
+                    </svg>
+                    Back to Event
+                </a>
+            </div>
         </div>
-    </x-slot>
+    </div>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -54,6 +58,12 @@
                                 
                                 // Determine if current - must be today and within time window
                                 $isCurrent = $isToday && $now->between($startDateTime, $absentDateTime);
+
+                                // Add time variables to slot
+                                $slot->startTime = $startDateTime;
+                                $slot->endTime = $endDateTime;
+                                $slot->absentTime = $absentDateTime;
+                                $slot->now = $now;
 
                                 if ($isCurrent) {
                                     $currentSlots->push($slot);

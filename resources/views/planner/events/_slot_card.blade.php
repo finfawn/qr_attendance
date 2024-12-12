@@ -1,30 +1,31 @@
 <div class="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600 transition-all duration-200 relative group">
-    <!-- Status Badge - Top Left -->
-    @php
-        $statusClass = $now->between($startTime, $endTime) ? 'bg-green-50 text-green-700 border-green-100 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800' :
-                      ($now->between($endTime, $absentTime) ? 'bg-yellow-50 text-yellow-700 border-yellow-100 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800' :
-                      'bg-gray-50 text-gray-700 border-gray-100 dark:bg-gray-900/20 dark:text-gray-400 dark:border-gray-800');
-    @endphp
-    <div class="absolute top-3 left-3">
+    <!-- Top Right Actions -->
+    <div class="absolute top-3 right-3 flex items-center space-x-2">
+        <!-- Delete Button -->
+        <form action="{{ route('events.attendance-slots.destroy', ['event' => $event, 'attendance_slot' => $slot]) }}" 
+            method="POST" 
+            class="opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-30">
+            @csrf
+            @method('DELETE')
+            <button type="submit" 
+                class="p-1.5 rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/50 transition-colors duration-200">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+            </button>
+        </form>
+
+        <!-- Status Badge -->
+        @php
+            $statusClass = $slot->now->between($slot->startTime, $slot->endTime) ? 'bg-green-50 text-green-700 border-green-100 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800' :
+                          ($slot->now->between($slot->endTime, $slot->absentTime) ? 'bg-yellow-50 text-yellow-700 border-yellow-100 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800' :
+                          'bg-gray-50 text-gray-700 border-gray-100 dark:bg-gray-900/20 dark:text-gray-400 dark:border-gray-800');
+        @endphp
         <span class="px-2.5 py-1 text-xs font-medium rounded-full border {{ $statusClass }}">
-            {{ $now->between($startTime, $endTime) ? 'Active' : 
-               ($now->between($endTime, $absentTime) ? 'Late Period' : 'Ended') }}
+            {{ $slot->now->between($slot->startTime, $slot->endTime) ? 'Active' : 
+               ($slot->now->between($slot->endTime, $slot->absentTime) ? 'Late Period' : 'Ended') }}
         </span>
     </div>
-
-    <!-- Delete Button - Top Right -->
-    <form action="{{ route('events.attendance-slots.destroy', ['event' => $event, 'attendance_slot' => $slot]) }}" 
-        method="POST" 
-        class="absolute top-2 right-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-        @csrf
-        @method('DELETE')
-        <button type="submit" 
-            class="p-1.5 rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/50 transition-colors duration-200">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-            </svg>
-        </button>
-    </form>
 
     <!-- Card Content -->
     <div class="p-6">

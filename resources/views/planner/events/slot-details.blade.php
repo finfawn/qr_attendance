@@ -1,20 +1,23 @@
 <x-app-layout>
-    <x-slot name="header">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                Attendance Details
-            </h2>
-            <div class="flex space-x-3">
-                <a href="{{ route('events.attendance-slots.index', $event) }}" 
-                    class="text-gray-600 hover:text-gray-900 dark:hover:text-gray-400 inline-flex items-center">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="dashboard-header">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center">
+                <h2 class="font-bold text-2xl text-white leading-tight flex items-center">
+                    <svg class="w-8 h-8 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    {{ __('Time Slot Details') }}
+                </h2>
+                <a href="{{ route('events.manage-attendance', $event) }}" 
+                   class="create-event-btn px-6 py-3 text-white rounded-lg transition-all duration-300 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z" />
                     </svg>
+                    Back to Attendance
                 </a>
             </div>
         </div>
-    </x-slot>
+    </div>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -219,70 +222,110 @@
     <!-- QR Scanner Modal -->
     <div id="qrScannerModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
         <div class="flex items-center justify-center min-h-screen px-4">
-            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
-            <div class="relative bg-white dark:bg-gray-800 rounded-lg w-full max-w-4xl p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-                        Scan QR Code - {{ $slot->title }}
-                    </h3>
-                    <button type="button" onclick="closeQrScannerModal()" class="text-gray-400 hover:text-gray-500">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity backdrop-blur-sm"></div>
+            <div class="relative bg-white dark:bg-gray-800 rounded-2xl w-full max-w-4xl p-8 shadow-2xl">
+                <!-- Header -->
+                <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
+                    <div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                            Attendance Scanner
+                        </h3>
+                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                            {{ $slot->title }}
+                        </p>
+                    </div>
+                    <button type="button" onclick="closeQrScannerModal()" 
+                        class="rounded-lg p-2 text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                         <span class="sr-only">Close</span>
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <div id="reader"></div>
+
+                <!-- Content -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Scanner Section -->
+                    <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-6">
+                        <div id="reader" class="overflow-hidden rounded-lg"></div>
+                        <div class="mt-4 text-center">
+                            <div class="flex items-center justify-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span>{{ \Carbon\Carbon::parse($slot->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($slot->end_time)->format('g:i A') }}</span>
+                            </div>
+                            <div class="mt-1 text-xs text-red-600 dark:text-red-400">
+                                Absent after {{ \Carbon\Carbon::parse($slot->absent_time)->format('g:i A') }}
+                            </div>
+                        </div>
                     </div>
-                    <div>
+
+                    <!-- Results Section -->
+                    <div class="relative">
                         <!-- Initial State -->
-                        <div id="initialScanState" class="bg-white dark:bg-gray-700 rounded-lg p-6 text-center">
-                            <div class="animate-bounce mb-4">
-                                <svg class="w-16 h-16 mx-auto text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2m0 0H8m4 0h4m-4-8a3 3 0 100 6 3 3 0 000-6z"/>
+                        <div id="initialScanState" class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-600 rounded-xl p-6 text-center h-full flex flex-col items-center justify-center">
+                            <div class="animate-bounce mb-6">
+                                <svg class="w-20 h-20 text-blue-500 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v1m6 11h2m-6 0h-2m0 0H8m4 0h4m-4-8a3 3 0 100 6 3 3 0 000-6z"/>
                                 </svg>
                             </div>
-                            <h4 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Ready to Scan</h4>
-                            <p class="text-gray-600 dark:text-gray-300 mb-4">Please position the QR code within the scanner frame</p>
-                            <div class="animate-pulse">
-                                <div class="h-2 bg-green-200 rounded w-24 mx-auto"></div>
-                            </div>
-                            <div class="mt-6 space-y-2 text-sm text-gray-500 dark:text-gray-400">
-                                <p>{{ \Carbon\Carbon::parse($slot->date)->format('F d, Y') }}</p>
-                                <p>{{ \Carbon\Carbon::parse($slot->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($slot->end_time)->format('g:i A') }}</p>
-                                <p class="text-xs">Absent after {{ \Carbon\Carbon::parse($slot->absent_time)->format('g:i A') }}</p>
+                            <h4 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">Ready to Scan</h4>
+                            <p class="text-gray-600 dark:text-gray-300 mb-6 max-w-xs mx-auto">
+                                Position the QR code within the scanner frame to record attendance
+                            </p>
+                            <div class="animate-pulse flex justify-center">
+                                <div class="h-1.5 w-16 bg-blue-200 dark:bg-blue-400 rounded-full"></div>
                             </div>
                         </div>
 
-                        <!-- Scan Result (Initially Hidden) -->
-                        <div id="scanResult" class="hidden">
-                            <div class="bg-white dark:bg-gray-700 rounded-lg p-6">
-                                <h4 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Scanned Attendee</h4>
+                        <!-- Scan Result -->
+                        <div id="scanResult" class="hidden h-full">
+                            <div class="bg-white dark:bg-gray-700 rounded-xl p-6 h-full shadow-sm">
+                                <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-100 dark:border-gray-600">
+                                    <div>
+                                        <h4 class="text-lg font-bold text-gray-900 dark:text-gray-100">Scanned Attendee</h4>
+                                        <p id="scanTime" class="text-xs text-gray-500 dark:text-gray-400 mt-1"></p>
+                                    </div>
+                                    <button onclick="resetScanner()" 
+                                        class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 border border-blue-200 dark:border-blue-800 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/50 transition-colors">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                        </svg>
+                                        Scan Another
+                                    </button>
+                                </div>
                                 <div class="space-y-4">
-                                    <div>
-                                        <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Name</label>
-                                        <p class="mt-1 text-sm text-gray-900 dark:text-gray-100" id="attendeeName"></p>
+                                    <!-- Name -->
+                                    <div class="bg-gray-50/80 dark:bg-gray-600/50 rounded-lg p-4 transform transition-all hover:scale-[1.02]">
+                                        <label class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Name</label>
+                                        <p class="mt-1 text-base font-semibold text-gray-900 dark:text-gray-100" id="attendeeName"></p>
                                     </div>
-                                    <div>
-                                        <label class="text-sm font-medium text-gray-500 dark:text-gray-400">ID Number</label>
-                                        <p class="mt-1 text-sm text-gray-900 dark:text-gray-100" id="attendeeId"></p>
+                                    <!-- ID Number -->
+                                    <div class="bg-gray-50/80 dark:bg-gray-600/50 rounded-lg p-4 transform transition-all hover:scale-[1.02]">
+                                        <label class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">ID Number</label>
+                                        <p class="mt-1 text-base font-semibold text-gray-900 dark:text-gray-100" id="attendeeIdno"></p>
                                     </div>
-                                    <div>
-                                        <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Course</label>
-                                        <p class="mt-1 text-sm text-gray-900 dark:text-gray-100" id="attendeeCourse"></p>
+                                    <!-- Course -->
+                                    <div class="bg-gray-50/80 dark:bg-gray-600/50 rounded-lg p-4 transform transition-all hover:scale-[1.02]">
+                                        <label class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Course</label>
+                                        <p class="mt-1 text-base font-semibold text-gray-900 dark:text-gray-100" id="attendeeCourse"></p>
                                     </div>
-                                    <div>
-                                        <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Year & Section</label>
-                                        <p class="mt-1 text-sm text-gray-900 dark:text-gray-100" id="attendeeYearSection"></p>
+                                    <!-- Year & Section -->
+                                    <div class="bg-gray-50/80 dark:bg-gray-600/50 rounded-lg p-4 transform transition-all hover:scale-[1.02]">
+                                        <label class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Year & Section</label>
+                                        <p class="mt-1 text-base font-semibold text-gray-900 dark:text-gray-100" id="attendeeYearSection"></p>
                                     </div>
-                                    <div>
-                                        <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Status</label>
-                                        <div class="mt-1" id="attendeeStatus"></div>
+                                    <!-- Status -->
+                                    <div class="bg-gray-50/80 dark:bg-gray-600/50 rounded-lg p-4 transform transition-all hover:scale-[1.02]">
+                                        <label class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Status</label>
+                                        <div class="mt-2" id="attendeeStatus"></div>
                                     </div>
-                                    <div>
-                                        <p class="mt-1 text-sm" id="attendeeMessage"></p>
+                                    <!-- Message -->
+                                    <div class="mt-6 text-center">
+                                        <div class="inline-block px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-600">
+                                            <p class="text-sm font-medium" id="attendeeMessage"></p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -440,6 +483,36 @@
             initialState.classList.remove('hidden');
         }
 
+        function resetScanner() {
+            const scanResult = document.getElementById('scanResult');
+            const initialState = document.getElementById('initialScanState');
+            
+            // Add fade-out effect
+            scanResult.style.opacity = '0';
+            
+            setTimeout(() => {
+                // Reset states
+                scanResult.classList.add('hidden');
+                initialState.classList.remove('hidden');
+                
+                // Clear previous attendee details
+                document.getElementById('attendeeName').textContent = '';
+                document.getElementById('attendeeIdno').textContent = '';
+                document.getElementById('attendeeCourse').textContent = '';
+                document.getElementById('attendeeYearSection').textContent = '';
+                document.getElementById('attendeeStatus').innerHTML = '';
+                document.getElementById('attendeeMessage').textContent = '';
+                document.getElementById('scanTime').textContent = '';
+                
+                // Add fade-in effect
+                void initialState.offsetWidth;
+                initialState.style.opacity = '1';
+                
+                // Restart the scanner
+                html5QrcodeScanner.render(onScanSuccess);
+            }, 200);
+        }
+
         function onScanSuccess(qrCode) {
             // Stop scanning after successful scan
             html5QrcodeScanner.clear();
@@ -448,15 +521,19 @@
             const scanResult = document.getElementById('scanResult');
             const initialState = document.getElementById('initialScanState');
             
-            // Hide initial state and show scan result
-            initialState.classList.add('hidden');
-            scanResult.classList.remove('hidden');
+            // Hide initial state and show scan result with fade effect
+            initialState.style.opacity = '0';
+            setTimeout(() => {
+                initialState.classList.add('hidden');
+                scanResult.classList.remove('hidden');
+                // Trigger reflow
+                void scanResult.offsetWidth;
+                scanResult.style.opacity = '1';
+            }, 200);
             
             document.getElementById('attendeeMessage').textContent = 'Processing...';
-            document.getElementById('attendeeMessage').className = 'text-sm font-medium text-gray-600';
-
-            // Debug: Log raw QR code content
-            console.log('Raw QR Code Content:', qrCode);
+            document.getElementById('attendeeMessage').className = 'text-sm font-medium text-gray-600 dark:text-gray-400';
+            document.getElementById('scanTime').textContent = `Scanning at ${new Date().toLocaleTimeString()}`;
 
             // Parse underscore-separated QR code
             let qrData;
@@ -464,41 +541,28 @@
                 const cleanQrCode = qrCode.trim();
                 const [registrationId, eventId, userId, timestamp] = cleanQrCode.split('_');
                 
-                // Validate the parsed data
                 if (!registrationId || !eventId || !userId || !timestamp) {
                     throw new Error('Invalid QR code format: missing required fields');
                 }
 
-                // Create the data object
                 qrData = {
                     registration_id: registrationId,
                     event_id: eventId,
                     user_id: userId,
                     timestamp: timestamp
                 };
-                
-                console.log('Parsed QR Data:', qrData);
 
-                // Validate that the QR code is for the correct event
                 if (qrData.event_id !== '{{ $event->id }}') {
                     throw new Error('This QR code is for a different event');
                 }
 
             } catch (error) {
                 console.error('QR Code Parse Error:', error);
-                console.error('Failed to parse QR code:', qrCode);
                 const messageElement = document.getElementById('attendeeMessage');
-                messageElement.className = 'text-sm font-medium text-red-600';
-                messageElement.textContent = 'Invalid QR code format. Please try again. Error: ' + error.message;
+                messageElement.className = 'text-sm font-medium text-red-600 dark:text-red-400';
+                messageElement.textContent = error.message || 'Invalid QR code format. Please try again.';
                 
-                // Show initial state again and hide scan result
-                initialState.classList.remove('hidden');
-                scanResult.classList.add('hidden');
-                
-                // Restart scanner after 2 seconds
-                setTimeout(() => {
-                    html5QrcodeScanner.render(onScanSuccess);
-                }, 2000);
+                setTimeout(resetScanner, 2000);
                 return;
             }
 
@@ -514,7 +578,7 @@
                     'Accept': 'application/json'
                 },
                 body: JSON.stringify({
-                    qr_code: qrData  // Send the object directly, don't stringify it again
+                    qr_code: qrData
                 })
             })
             .then(response => {
@@ -530,27 +594,56 @@
 
                 // Update attendee details if data exists
                 if (data.attendee) {
-                    document.getElementById('attendeeName').textContent = data.attendee.name || 'N/A';
-                    document.getElementById('attendeeId').textContent = data.attendee.idno || 'N/A';
-                    document.getElementById('attendeeCourse').textContent = data.attendee.course || 'N/A';
-                    document.getElementById('attendeeYearSection').textContent = data.attendee.year && data.attendee.section ? 
-                        `Year ${data.attendee.year} - ${data.attendee.section}` : 'N/A';
+                    // Add fade-in effect for each detail
+                    const details = ['Name', 'Idno', 'Course', 'YearSection'];
+                    details.forEach((detail, index) => {
+                        setTimeout(() => {
+                            const element = document.getElementById('attendee' + detail);
+                            element.textContent = detail === 'YearSection' ?
+                                `Year ${data.attendee.year} - ${data.attendee.section}` :
+                                data.attendee[detail.toLowerCase()] || 'N/A';
+                            element.style.opacity = '0';
+                            void element.offsetWidth;
+                            element.style.opacity = '1';
+                        }, index * 100);
+                    });
                     
-                    // Update status with appropriate styling
+                    // Update status with appropriate styling and icon
                     const statusDiv = document.getElementById('attendeeStatus');
-                    const statusClass = data.status === 'present' ? 'bg-green-100 text-green-800' :
-                                    data.status === 'late' ? 'bg-yellow-100 text-yellow-800' :
-                                    'bg-red-100 text-red-800';
-                    statusDiv.innerHTML = `<span class="px-2 py-1 text-xs font-semibold rounded-full ${statusClass}">${data.status || 'Unknown'}</span>`;
+                    const statusConfig = {
+                        present: {
+                            class: 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 border-green-200 dark:border-green-800',
+                            icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>'
+                        },
+                        late: {
+                            class: 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 border-yellow-200 dark:border-yellow-800',
+                            icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>'
+                        },
+                        absent: {
+                            class: 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 border-red-200 dark:border-red-800',
+                            icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>'
+                        }
+                    };
+
+                    const config = statusConfig[data.status] || statusConfig.absent;
+                    statusDiv.innerHTML = `
+                        <span class="inline-flex items-center px-4 py-2 text-sm font-semibold rounded-lg border ${config.class}">
+                            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                ${config.icon}
+                            </svg>
+                            ${data.status ? data.status.toUpperCase() : 'Unknown'}
+                        </span>`;
 
                     // Update message with appropriate styling
                     const messageElement = document.getElementById('attendeeMessage');
-                    messageElement.className = `text-sm font-medium ${
-                        data.status === 'present' ? 'text-green-600' :
-                        data.status === 'late' ? 'text-yellow-600' :
-                        'text-red-600'
-                    }`;
+                    const messageClass = data.status === 'present' ? 'text-green-600 dark:text-green-400' :
+                                       data.status === 'late' ? 'text-yellow-600 dark:text-yellow-400' :
+                                       'text-red-600 dark:text-red-400';
+                    messageElement.className = `text-sm font-medium ${messageClass}`;
                     messageElement.textContent = data.message || getStatusMessage(data.status);
+                    
+                    // Update scan time with success indicator
+                    document.getElementById('scanTime').textContent = `Successfully scanned at ${new Date().toLocaleTimeString()}`;
                     
                     // Reload the page after 3 seconds to show updated attendance
                     setTimeout(() => {
@@ -563,24 +656,21 @@
             .catch(error => {
                 console.error('Error:', error);
                 const messageElement = document.getElementById('attendeeMessage');
-                messageElement.className = 'text-sm font-medium text-red-600';
+                messageElement.className = 'text-sm font-medium text-red-600 dark:text-red-400';
                 messageElement.textContent = error.message || 'Failed to record attendance. Please try again.';
                 
-                // Restart scanner after 2 seconds
-                setTimeout(() => {
-                    html5QrcodeScanner.render(onScanSuccess);
-                }, 2000);
+                setTimeout(resetScanner, 2000);
             });
         }
 
         function getStatusMessage(status) {
             switch(status) {
                 case 'present':
-                    return 'You are on time! Attendance recorded successfully.';
+                    return 'Attendance recorded successfully! You are on time.';
                 case 'late':
-                    return 'You are late, but your attendance has been recorded.';
+                    return 'Attendance recorded. Please try to arrive earlier next time.';
                 case 'absent':
-                    return 'Sorry, you are marked as absent due to late arrival.';
+                    return 'You have been marked as absent due to late arrival.';
                 default:
                     return 'Attendance status recorded.';
             }
@@ -799,6 +889,21 @@
                 setTimeout(() => notification.remove(), 300);
             }, 3000);
         }
+
+        // Add CSS for transitions
+        const style = document.createElement('style');
+        style.textContent = `
+            #initialScanState, #scanResult {
+                transition: opacity 0.2s ease-in-out;
+            }
+            #attendeeName, #attendeeIdno, #attendeeCourse, #attendeeYearSection {
+                transition: opacity 0.2s ease-in-out;
+            }
+            .hover\\:scale-\\[1\\.02\\]:hover {
+                transition: transform 0.2s ease-in-out;
+            }
+        `;
+        document.head.appendChild(style);
     </script>
     @endpush
 </x-app-layout>

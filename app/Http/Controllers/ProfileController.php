@@ -18,21 +18,47 @@ class ProfileController extends Controller
     public function edit(Request $request): View
     {
         $user = $request->user();
-        $departments = [
-            'Computer Science',
-            'Information Technology',
-            'Engineering',
-            'Business Administration',
-            'Nursing'
+        $courses = [
+            'Bachelor of Science in Agriculture',
+            'Bachelor of Science in Agribusiness', 
+            'Bachelor of Arts in Communication', 
+            'Bachelor of Arts in English Language', 
+            'Bachelor of Arts in Filipino Language',
+            'Bachelor of Science in Agricultural and Biosystems Engineering',
+            'Bachelor of Science in Biological Sciences',
+            'Bachelor of Science in Civil Engineering',
+            'Bachelor of Science in Industrial Engineering',
+            'Bachelor of Science in Electrical Engineering',
+            'Bachelor of Science in Forestry',
+            'Bachelor of Science in Computer Science',
+            'Bachelor of Science in Information Technology',
+            'Bachelor of Science in Hospitality Management',
+            'Bachelor of Science in Tourism Management',
+            'Bachelor of Science in Food Science and Technology',
+            'Bachelor of Science in Entrepreneurship',
+            'Bachelor of Science in Nutrition and Dietetics',
+            'Bachelor of Science in Nursing',
+            'Bachelor of Science in Midwifery',
+            'Bachelor of Science in Physical Therapy',
+            'Bachelor of Science in Occupational Therapy',
+            'Bachelor of Science in Pharmacy',
+            'Bachelor of Science in Medical Technology',
+            'Bachelor of Science in Dentistry',
+            'Bachelor of Science in Veterinary Medicine'
         ];
 
         $years = [
             '1','2','3','4'
         ];
     
-        // Ensure the QR code file exists
-        $qrCodeExists = Storage::disk('public')->exists($user->qr_code);
-        $qrCodePath = $qrCodeExists ? $user->qr_code_url : null;
+        // Initialize QR code path
+        $qrCodePath = null;
+    
+        // Only check storage if user has a QR code path
+        if ($user->qr_code) {
+            $qrCodeExists = Storage::disk('public')->exists($user->qr_code);
+            $qrCodePath = $qrCodeExists ? $user->qr_code_url : null;
+        }
     
         return view('profile.edit', [
             'user' => $user,
@@ -55,7 +81,7 @@ class ProfileController extends Controller
             'name' => $request->input('name'),
             'email' => $request->input('email'),
             'idno' => $request->input('idno'),
-            'department' => $request->input('department'),
+            'course' => $request->input('course'),
             'year' => $request->input('year'),
             'section' => $request->input('section'),
         ]);

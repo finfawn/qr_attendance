@@ -1,19 +1,23 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                {{ __('Event Details') }}
-            </h2>
-            <a href="{{ route('planner.dashboard') }}" 
-               class="text-gray-600 hover:text-gray-900 dark:hover:text-gray-400 inline-flex items-center"
-               title="Back to Dashboard">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z" />
-                </svg>
-                
-            </a>
+    <div class="dashboard-header">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center">
+                <h2 class="font-bold text-2xl text-white leading-tight flex items-center">
+                    <svg class="w-8 h-8 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    {{ __('Event Details') }}
+                </h2>
+                <a href="{{ route('planner.dashboard') }}" 
+                   class="create-event-btn px-6 py-3 text-white rounded-lg transition-all duration-300 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z" />
+                    </svg>
+                    Back to Dashboard
+                </a>
+            </div>
         </div>
-    </x-slot>
+    </div>
 
     @if ($errors->any())
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 mt-4">
@@ -28,26 +32,26 @@
     @endif
 
     <div class="py-12">
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <!-- Manage registration Button Section -->
-        <div class="mb-6">
-            <a href="{{ route('events.manage-attendance', $event) }}"
-               class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-lg shadow-lg flex items-center justify-center space-x-3 transition-all duration-200 transform hover:scale-[1.02]">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-                <span class="text-xl">Manage Attendance</span>
-            </a>
-        </div>
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6">
-                    <div class="grid grid-cols-1 gap-6">
+            <!-- Manage registration Button Section -->
+            <div class="mb-6">
+                <a href="{{ route('events.manage-attendance', $event) }}"
+                   class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-lg shadow-lg flex items-center justify-center space-x-3 transition-all duration-200 transform hover:scale-[1.02]">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    <span class="text-xl">Manage Attendance</span>
+                </a>
+            </div>
+
+            <div class="bg-gradient-to-br from-blue-50 to-white dark:from-gray-800 dark:to-gray-900 overflow-hidden shadow-lg sm:rounded-2xl border border-blue-100 dark:border-blue-900">
+                <div class="p-8">
+                    <div class="grid grid-cols-1 gap-8">
                         <!-- Event Header -->
-                        <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
+                        <div class="border-b border-blue-100 dark:border-blue-800 pb-6">
                             <div class="flex justify-between items-center">
                                 <div>
-                                    <h3 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                                    <h3 class="text-3xl font-bold text-gray-900 dark:text-gray-100 bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
                                         {{ $event->title }}
                                     </h3>
                                     <div class="mt-2">
@@ -62,52 +66,51 @@
                                         @csrf
                                         <select name="status" 
                                                 onchange="this.form.submit()"
-                                                class="rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 text-sm focus:ring-1 py-1.5">
+                                                class="rounded-lg border-blue-200 dark:border-blue-800 dark:bg-gray-800 dark:text-gray-300 text-sm focus:ring-blue-500 focus:border-blue-500 py-2 px-3 bg-white shadow-sm">
                                             @foreach(App\Models\Event::$statuses as $value => $label)
                                                 <option value="{{ $value }}" {{ $event->status === $value ? 'selected' : '' }}>
                                                     {{ $label }}
                                                 </option>
                                             @endforeach
                                         </select>
-                                        <input type="hidden" name="title" value="{{ $event->title }}">
-                                        <input type="hidden" name="description" value="{{ $event->description }}">
-                                        <input type="hidden" name="date" value="{{ $event->date }}">
-                                        <input type="hidden" name="start_time" value="{{ $event->start_time }}">
-                                        <input type="hidden" name="end_time" value="{{ $event->end_time }}">
-                                        <input type="hidden" name="location" value="{{ $event->location }}">
+                                        <!-- Hidden inputs -->
                                     </form>
-                                    <a href="{{ route('events.edit', $event) }}" 
-                                       class="text-yellow-600 hover:text-yellow-900 dark:hover:text-yellow-400 inline-flex items-center"
-                                       title="Edit Event">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                        </svg>
-                                    </a>
-                                    <form action="{{ route('events.destroy', $event) }}" method="POST" class="inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" 
-                                            class="text-red-600 hover:text-red-900 dark:hover:text-red-400 p-1"
-                                            title="Delete Event"
-                                            onclick="return confirm('Are you sure you want to delete this event?')">
-                                            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    <div class="flex space-x-2">
+                                        <a href="{{ route('events.edit', $event) }}" 
+                                           class="text-blue-600 hover:text-blue-700 dark:hover:text-blue-400 inline-flex items-center p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/50 transition-colors"
+                                           title="Edit Event">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                             </svg>
-                                        </button>
-                                    </form>
+                                        </a>
+                                        <form action="{{ route('events.destroy', $event) }}" method="POST" class="inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" 
+                                                class="text-red-600 hover:text-red-700 dark:hover:text-red-400 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/50 transition-colors"
+                                                title="Delete Event"
+                                                onclick="return confirm('Are you sure you want to delete this event?')">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Event Information Grid -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <!-- Date and Time Section -->
-                            <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
-                                <div class="space-y-4">
+                            <div class="bg-white/50 dark:bg-gray-800/50 rounded-xl p-6 border border-blue-100 dark:border-blue-900 shadow-sm hover:shadow-md transition-all duration-300">
+                                <div class="space-y-6">
                                     <div class="flex items-center">
-                                        <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 1118 0 9 9 0 01-18 0z" />
-                                        </svg>
+                                        <div class="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-lg mr-4">
+                                            <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                        </div>
                                         <div>
                                             <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400">Date</h4>
                                             <p class="mt-1 text-lg font-medium text-gray-900 dark:text-gray-100">
@@ -117,9 +120,11 @@
                                     </div>
 
                                     <div class="flex items-center">
-                                        <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
+                                        <div class="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-lg mr-4">
+                                            <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        </div>
                                         <div>
                                             <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400">Time</h4>
                                             <p class="mt-1 text-lg font-medium text-gray-900 dark:text-gray-100">
@@ -131,32 +136,34 @@
                                 </div>
                             </div>
 
-                            <!-- Location and Details Section -->
-                            <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
-                                <div class="space-y-4">
-                                    <div class="flex items-center">
-                                        <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <!-- Location Section -->
+                            <div class="bg-white/50 dark:bg-gray-800/50 rounded-xl p-6 border border-blue-100 dark:border-blue-900 shadow-sm hover:shadow-md transition-all duration-300">
+                                <div class="flex items-center">
+                                    <div class="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-lg mr-4">
+                                        <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                         </svg>
-                                        <div>
-                                            <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400">Location</h4>
-                                            <p class="mt-1 text-lg font-medium text-gray-900 dark:text-gray-100">
-                                                {{ $event->location }}
-                                            </p>
-                                        </div>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400">Location</h4>
+                                        <p class="mt-1 text-lg font-medium text-gray-900 dark:text-gray-100">
+                                            {{ $event->location }}
+                                        </p>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Description Section -->
-                        <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+                        <div class="bg-white/50 dark:bg-gray-800/50 rounded-xl p-6 border border-blue-100 dark:border-blue-900 shadow-sm hover:shadow-md transition-all duration-300">
                             <div class="flex items-start">
-                                <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 mr-3 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
-                                </svg>
-                                <div>
+                                <div class="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-lg mr-4">
+                                    <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
+                                    </svg>
+                                </div>
+                                <div class="flex-1">
                                     <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400">Description</h4>
                                     <p class="mt-1 text-gray-900 dark:text-gray-100">
                                         {{ $event->description ?? 'No description provided.' }}
@@ -166,21 +173,21 @@
                         </div>
 
                         <!-- QR Code and Event Code Section -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <!-- QR Code -->
-                            <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
-                                <h3 class="text-lg font-semibold mb-6 text-gray-700 dark:text-gray-300 text-center">
+                            <div class="bg-white/50 dark:bg-gray-800/50 rounded-xl p-6 border border-blue-100 dark:border-blue-900 shadow-sm hover:shadow-md transition-all duration-300">
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 text-center mb-6">
                                     Event QR Code
                                 </h3>
                                 @if($qrCodeUrl)
                                     <div class="flex flex-col items-center space-y-4">
-                                        <div class="bg-white p-3 rounded-lg shadow-sm">
+                                        <div class="bg-white p-4 rounded-lg shadow-sm">
                                             <img src="{{ $qrCodeUrl }}" 
                                                  alt="Event QR Code" 
                                                  class="w-40 h-40 object-contain">
                                         </div>
                                         <button onclick="downloadQRCode()" 
-                                                class="inline-flex items-center px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200">
+                                                class="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200">
                                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                                             </svg>
@@ -191,18 +198,18 @@
                             </div>
 
                             <!-- Event Code -->
-                            <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
-                                <h3 class="text-lg font-semibold mb-6 text-gray-700 dark:text-gray-300 text-center">
+                            <div class="bg-white/50 dark:bg-gray-800/50 rounded-xl p-6 border border-blue-100 dark:border-blue-900 shadow-sm hover:shadow-md transition-all duration-300">
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 text-center mb-6">
                                     Event Code
                                 </h3>
                                 <div class="flex flex-col items-center space-y-4">
-                                    <div class="bg-gray-50 dark:bg-gray-700 px-6 py-3 rounded-lg">
-                                        <div class="text-2xl font-mono font-bold text-gray-700 dark:text-gray-300 tracking-wide">
+                                    <div class="bg-blue-50 dark:bg-blue-900/30 px-8 py-4 rounded-lg">
+                                        <div class="text-2xl font-mono font-bold text-blue-600 dark:text-blue-400 tracking-wide">
                                             {{ $eventCode }}
                                         </div>
                                     </div>
                                     <button onclick="copyEventCode()" 
-                                            class="inline-flex items-center px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200">
+                                            class="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200">
                                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                         </svg>
@@ -210,6 +217,17 @@
                                     </button>
                                 </div>
                             </div>
+                        </div>
+
+                        <!-- Generate Reports Button -->
+                        <div class="mt-6">
+                            <a href="{{ route('events.reports', $event) }}" 
+                                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-lg shadow-lg flex items-center justify-center space-x-3 transition-all duration-200 transform hover:scale-[1.02]">
+                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                                </svg>
+                                <span class="text-xl">Generate Reports</span>
+                            </a>
                         </div>
                         
                     </div>
@@ -255,7 +273,9 @@
                                                 ->get();
                                         @endphp
                                         @foreach($availableUsers as $user)
-                                            <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->idno }})</option>
+                                            <option value="{{ $user->id }}">
+                                                {{ $user->name }} ({{ $user->idno }}) - {{ $user->course }} {{ $user->year }}-{{ $user->section }}
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -423,7 +443,7 @@
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Edit Registration Status</h3>
                     <button type="button" onclick="closeEditModal()" class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300">
-                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>

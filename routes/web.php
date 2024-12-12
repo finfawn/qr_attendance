@@ -122,20 +122,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         });
 });
 
-    // Routes for email verification
-    Route::get('verify-email/{id}/{hash}', [VerifyEmailController::class, '__invoke'])
-        ->middleware('signed')
-        ->name('verification.verify');
-
-    Route::middleware('auth')->group(function () {
-        Route::get('verify-email', [EmailVerificationPromptController::class, '__invoke'])
-            ->name('verification.notice');
-        
-        Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
-            ->middleware('throttle:6,1')
-            ->name('verification.send');
-    });
-
     // Additional authenticated routes
 Route::middleware('auth')->group(function () {
     Route::post('/registration/record', [RegistrationController::class, 'recordQrAttendance'])
@@ -146,5 +132,8 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/planner/events/{event}/attendance-slots/{attendance_slot}/count', [AttendanceSlotController::class, 'getAttendeeCount'])
     ->name('events.attendance-slots.count');
+
+Route::get('/planner/events/{event}/reports', [EventController::class, 'showReports'])
+    ->name('events.reports');
 
 require __DIR__ . '/auth.php';

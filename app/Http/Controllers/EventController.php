@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class EventController extends Controller
 {
@@ -129,8 +130,31 @@ class EventController extends Controller
 
     public function manageAttendance(Event $event)
     {
+        // Load relationships
         $event->load('attendanceSlots.registrations.user');
-        return view('planner.events.manage-attendance', compact('event'));
+
+        // Get current time in the configured timezone
+        $now = now()->timezone(config('app.timezone'));
+
+        // Parse times for each slot
+        $slots = $event->attendanceSlots->map(function ($slot) use ($now) {
+            $startTime = \Carbon\Carbon::parse($slot->date . ' ' . $slot->start_time);
+            $endTime = \Carbon\Carbon::parse($slot->date . ' ' . $slot->end_time);
+            $absentTime = \Carbon\Carbon::parse($slot->date . ' ' . $slot->absent_time);
+
+            return array_merge($slot->toArray(), [
+                'startTime' => $startTime,
+                'endTime' => $endTime,
+                'absentTime' => $absentTime,
+                'now' => $now
+            ]);
+        });
+
+        return view('planner.events.manage-attendance', [
+            'event' => $event,
+            'slots' => $slots,
+            'now' => $now
+        ]);
     }
 
     public function registerViaQr(Request $request)
@@ -160,5 +184,157 @@ class EventController extends Controller
     ]);
 
     return response()->json(['message' => 'Registered successfully. Please wait for the event planner to approve your registration.']);
+}
+
+/**
+ * Show the reports for a specific event.
+ *
+ * @param \App\Models\Event $event
+ * @return \Illuminate\View\View
+ */
+public function showReports(Event $event)
+{
+    // Ensure the user can access this event
+    if ($event->planner_id !== auth()->id()) {
+        abort(403, 'Unauthorized action.');
+    }
+
+    // Get all attendance slots for this event
+    $attendanceSlots = $event->attendanceSlots()
+        ->with(['attendances.registration.user'])
+        ->get();
+
+    // Initialize statistics arrays
+    $stats = [
+        'present_count' => 0,
+        'late_count' => 0,
+        'absent_count' => 0,
+        'total_attendees' => $event->registrations()->count()
+    ];
+
+    // Initialize hierarchical statistics
+    $hierarchicalStats = [];
+    $trendData = [];
+
+    // Process each attendance slot
+    foreach ($attendanceSlots as $slot) {
+        $slotDate = Carbon::parse($slot->date)->format('Y-m-d');
+        if (!isset($trendData[$slotDate])) {
+            $trendData[$slotDate] = ['present' => 0, 'late' => 0, 'absent' => 0];
+        }
+
+        foreach ($slot->attendances as $attendance) {
+            $user = $attendance->registration->user;
+            $course = $user->course;
+            $year = $user->year;
+            $section = $user->section;
+
+            // Initialize course if not exists
+            if (!isset($hierarchicalStats[$course])) {
+                $hierarchicalStats[$course] = [
+                    'years' => [],
+                    'total' => [
+                        'present' => 0,
+                        'late' => 0,
+                        'absent' => 0,
+                        'total' => 0
+                    ]
+                ];
+            }
+
+            // Initialize year if not exists
+            if (!isset($hierarchicalStats[$course]['years'][$year])) {
+                $hierarchicalStats[$course]['years'][$year] = [
+                    'sections' => [],
+                    'total' => [
+                        'present' => 0,
+                        'late' => 0,
+                        'absent' => 0,
+                        'total' => 0
+                    ]
+                ];
+            }
+
+            // Initialize section if not exists
+            if (!isset($hierarchicalStats[$course]['years'][$year]['sections'][$section])) {
+                $hierarchicalStats[$course]['years'][$year]['sections'][$section] = [
+                    'present' => 0,
+                    'late' => 0,
+                    'absent' => 0,
+                    'total' => 0,
+                    'students' => []
+                ];
+            }
+
+            // Update statistics
+            $stats[$attendance->status . '_count']++;
+            $hierarchicalStats[$course]['total'][$attendance->status]++;
+            $hierarchicalStats[$course]['total']['total']++;
+            $hierarchicalStats[$course]['years'][$year]['total'][$attendance->status]++;
+            $hierarchicalStats[$course]['years'][$year]['total']['total']++;
+            $hierarchicalStats[$course]['years'][$year]['sections'][$section][$attendance->status]++;
+            $hierarchicalStats[$course]['years'][$year]['sections'][$section]['total']++;
+
+            // Track individual student performance
+            if (!isset($hierarchicalStats[$course]['years'][$year]['sections'][$section]['students'][$user->id])) {
+                $hierarchicalStats[$course]['years'][$year]['sections'][$section]['students'][$user->id] = [
+                    'name' => $user->name,
+                    'idno' => $user->idno,
+                    'attendances' => []
+                ];
+            }
+
+            $hierarchicalStats[$course]['years'][$year]['sections'][$section]['students'][$user->id]['attendances'][] = [
+                'status' => $attendance->status,
+                'date' => $slot->date,
+                'time' => $attendance->scanned_at
+            ];
+
+            // Update trend data
+            $trendData[$slotDate][$attendance->status]++;
+        }
+    }
+
+    // Sort data
+    ksort($hierarchicalStats);
+    foreach ($hierarchicalStats as &$courseData) {
+        ksort($courseData['years']);
+        foreach ($courseData['years'] as &$yearData) {
+            ksort($yearData['sections']);
+        }
+    }
+
+    // Prepare chart data
+    $chartData = [
+        'courses' => [
+            'labels' => array_keys($hierarchicalStats),
+            'present' => array_column(array_column($hierarchicalStats, 'total'), 'present'),
+            'late' => array_column(array_column($hierarchicalStats, 'total'), 'late'),
+            'absent' => array_column(array_column($hierarchicalStats, 'total'), 'absent')
+        ],
+        'trends' => [
+            'labels' => array_keys($trendData),
+            'present' => array_column($trendData, 'present'),
+            'late' => array_column($trendData, 'late'),
+            'absent' => array_column($trendData, 'absent')
+        ]
+    ];
+
+    // Calculate percentages
+    $totalAttendances = $stats['present_count'] + $stats['late_count'] + $stats['absent_count'];
+    $percentages = [
+        'present' => $totalAttendances > 0 ? ($stats['present_count'] / $totalAttendances) * 100 : 0,
+        'late' => $totalAttendances > 0 ? ($stats['late_count'] / $totalAttendances) * 100 : 0,
+        'absent' => $totalAttendances > 0 ? ($stats['absent_count'] / $totalAttendances) * 100 : 0
+    ];
+
+    return view('planner.events.reports', compact(
+        'event',
+        'stats',
+        'hierarchicalStats',
+        'chartData',
+        'percentages',
+        'attendanceSlots'
+    ));
 }
 }

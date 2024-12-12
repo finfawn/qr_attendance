@@ -25,6 +25,10 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
+            'idno' => ['required', 'regex:/^\d{4}-\d{2}-\d{4}$/'],
+            'course' => ['required', 'string', 'max:255'],
+            'year' => ['required', 'integer', 'between:1,4'],
+            'section' => ['required', 'string', 'max:10'],
         ];
     }
 }

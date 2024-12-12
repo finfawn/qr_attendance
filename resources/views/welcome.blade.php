@@ -312,14 +312,14 @@
                                             <div class="contact-info">
                                                 <i class="bi bi-envelope"></i>
                                                 <h4>Email</h4>
-                                                <p>support@sqrypt.com</p>
+                                                <p>finfawnfoe@gmail.com</p>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="contact-info">
                                                 <i class="bi bi-telephone"></i>
                                                 <h4>Phone</h4>
-                                                <p>+1 234 567 8900</p>
+                                                <p>09073448862</p>
                                             </div>
                                         </div>
                                     </div>
@@ -367,8 +367,8 @@
                             <div class="col-md-4 footer-col">
                                 <h4>Contact Info</h4>
                                 <div class="footer-contact">
-                                    <p><i class="bi bi-envelope"></i>support@sqrypt.com</p>
-                                    <p><i class="bi bi-telephone"></i>+1 234 567 8900</p>
+                                    <p><i class="bi bi-envelope"></i>finfawnfoe@gmail.com</p>
+                                    <p><i class="bi bi-telephone"></i>09073448862</p>
                                 </div>
                             </div>
                         </div>
