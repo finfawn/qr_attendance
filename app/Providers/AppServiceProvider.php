@@ -21,6 +21,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if (env('APP_ENV') === 'production') {
+            URL::forceScheme('https');
+            
+            if (!app()->runningInConsole()) {
+                $this->app['request']->server->set('HTTPS', true);
+            }
+        }
+        
         if(str_contains(request()->getHost(), 'ngrok')) {
             // Force HTTPS for all URLs
             URL::forceScheme('https');
