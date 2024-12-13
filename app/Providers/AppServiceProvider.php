@@ -21,27 +21,35 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        if(str_contains(request()->getHost(), 'ngrok')) {
-            // Force HTTPS for all URLs
+        // Force HTTPS in production
+        if ($this->app->environment('production')) {
             URL::forceScheme('https');
-            
-            // Force the root URL
-            URL::forceRootUrl(config('app.url'));
+        }
 
-            // Add middleware to redirect HTTP to HTTPS
-            if (!request()->secure()) {
-                // Log the redirect
-                Log::info('Redirecting to HTTPS', [
+        // Handle ngrok tunneling
+        if (str_contains(request()->getHost(), 'ngrok')) {
+            URL::forceScheme('https');
+            URL::forceRootUrl(config('app.url'));
+        }
+
+        // Handle Railway deployment
+        if (str_contains(request()->getHost(), 'railway.app')) {
+            URL::forceScheme('https');
+            URL::forceRootUrl(config('app.url'));
+            
+            if (!request()->secure() && !app()->runningInConsole()) {
+                Log::info('Redirecting to HTTPS on Railway', [
                     'from' => request()->fullUrl(),
                     'to' => str_replace('http://', 'https://', request()->fullUrl())
                 ]);
-
-                // Redirect to HTTPS if coming in on HTTP
-                if (!app()->runningInConsole()) {
-                    $this->app['request']->server->set('HTTPS', true);
-                }
+                $this->app['request']->server->set('HTTPS', true);
             }
+        }
+
+        // Handle asset loading in production
+        if ($this->app->environment('production')) {
+            $this->app['request']->server->set('HTTPS', true);
+            config(['app.asset_url' => config('app.url')]);
         }
     }
 }
-
