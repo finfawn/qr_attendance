@@ -136,4 +136,9 @@ Route::get('/planner/events/{event}/attendance-slots/{attendance_slot}/count', [
 Route::get('/planner/events/{event}/reports', [EventController::class, 'showReports'])
     ->name('events.reports');
 
+// Health check route
+Route::get('/health', function () {
+    return response()->json(['status' => 'ok']);
+});
+
 require __DIR__ . '/auth.php';
